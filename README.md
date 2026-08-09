@@ -1,5 +1,7 @@
 # TTB Label Verification Prototype
 
+[![tests](https://github.com/SunshineCityApps/ttb-label-verify/actions/workflows/test.yml/badge.svg)](https://github.com/SunshineCityApps/ttb-label-verify/actions/workflows/test.yml)
+
 AI-assisted verification of alcohol beverage labels against COLA application data. An agent uploads a label image plus the application's stated fields; Claude vision reads the label, and deterministic code verifies every field — per-field results in seconds, with an overall pass / needs-review / fail verdict.
 
 **Live demo:** https://ttb-label-verify-pink.vercel.app
