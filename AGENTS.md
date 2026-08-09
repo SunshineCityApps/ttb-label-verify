@@ -28,7 +28,7 @@ An agent uploads a label image plus the application data (the fields the produce
 
    > GOVERNMENT WARNING: (1) According to the Surgeon General, women should not drink alcoholic beverages during pregnancy because of the risk of birth defects. (2) Consumption of alcoholic beverages impairs your ability to drive a car or operate machinery, and may cause health problems.
 
-   Check: (a) full text present word-for-word, (b) "GOVERNMENT WARNING:" is all caps. Flag title-case ("Government Warning") as a violation. Bold/font-size cannot be reliably verified from an image — note this as a documented limitation, but flag it for agent review.
+   Check: (a) full text present word-for-word, (b) "GOVERNMENT WARNING:" is all caps. Flag title-case ("Government Warning") as a violation. Bold/font-size cannot be reliably verified from an image — note this as a documented limitation, but flag it for agent review. One OCR-noise carve-out (validated by e2e testing on the skewed label): when wording and capitalization match exactly and only punctuation differs, return ⚠️ "confirm punctuation visually" instead of ❌ — OCR cannot reliably read punctuation on imperfect photos, and a false rejection on a good label is the failure mode that makes agents abandon the tool.
 5. **Stateless. No database, no stored images.** Prototype handles no PII and retains nothing — process in memory, return results, done. This is deliberate (federal data-retention posture), call it out in the README.
 6. **UI must pass the "73-year-old test."** Half the user base is 50+, mixed tech comfort. One obvious flow: upload → verify → results. Big buttons, big readable results, clear color coding (green/yellow/red), zero hidden menus or hunting. No jargon.
 

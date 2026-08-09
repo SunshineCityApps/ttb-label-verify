@@ -46,8 +46,24 @@ export function compareGovernmentWarning(labelValue: string | null): FieldResult
     };
   }
 
+  // Same words with identical casing, only punctuation differs. OCR cannot
+  // reliably read punctuation on imperfect photos (a dropped period on an
+  // angled shot is noise, not a violation), so this goes to the agent as a
+  // review item instead of a false rejection.
+  if (stripPunctuation(label) === stripPunctuation(CANONICAL_WARNING)) {
+    return {
+      field,
+      status: "match_with_note",
+      labelValue: label,
+      applicationValue: null,
+      note:
+        "Wording and capitalization match the statutory text, but punctuation could not be verified exactly from the image — confirm it visually. " +
+        FORMATTING_LIMITATION,
+    };
+  }
+
   // Same words, wrong casing — the classic "Government Warning" in title case.
-  if (label.toLowerCase() === CANONICAL_WARNING.toLowerCase()) {
+  if (stripPunctuation(label).toLowerCase() === stripPunctuation(CANONICAL_WARNING).toLowerCase()) {
     const leadIn = label.slice(0, "GOVERNMENT WARNING:".length);
     const capsProblem = leadIn !== "GOVERNMENT WARNING:";
     return {
@@ -68,6 +84,11 @@ export function compareGovernmentWarning(labelValue: string | null): FieldResult
     applicationValue: null,
     note: `Warning text deviates from the statutory wording. ${describeFirstDeviation(label)}`,
   };
+}
+
+/** Remove punctuation, keeping letters/digits/spaces, and re-collapse whitespace. */
+function stripPunctuation(s: string): string {
+  return collapseWhitespace(s.replace(/[^\p{L}\p{N}\s]/gu, ""));
 }
 
 function describeFirstDeviation(label: string): string {

@@ -12,7 +12,7 @@ spec's "Test labels" list. Unless noted, enter the OLD TOM sample application da
 | `03-warning-titlecase.png` | Jenny's case: `Government Warning:` in title case | Sample | ❌ **FAIL** — warning flagged: lead-in must be all caps |
 | `04-abv-mismatch.png` | Label states 40% / 80 proof | Sample (45%) | ❌ **FAIL** — alcohol content mismatch (40% vs 45%) |
 | `05-missing-net-contents.png` | No net contents printed | Sample | ❌ **FAIL** — net contents "not found on the label" |
-| `06-skewed.png` | Clean label photographed at an angle | Sample | ✅ **PASS** — demonstrates tolerance of imperfect images |
+| `06-skewed.png` | Clean label photographed at an angle | Sample | ✅ **PASS**, or ⚠️ **NEEDS REVIEW** with a "confirm punctuation visually" note if OCR drops punctuation on the angled photo — never a false FAIL |
 
 Regenerate with:
 

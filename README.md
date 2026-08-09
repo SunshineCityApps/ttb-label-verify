@@ -27,7 +27,7 @@ Why: in a compliance setting, "the model felt like it matched" is not an explain
 
 Each field resolves to **match**, **match with note**, or **mismatch** — not a binary. A label shouting `STONE'S THROW` against an application reading `Stone's Throw` is the same content with different formatting; the tool says so and lets the agent make the call instead of auto-rejecting. Content differences (wrong ABV, missing field) are hard mismatches.
 
-The government warning is the deliberate exception: the statutory text (27 CFR 16.21) must match word-for-word and "GOVERNMENT WARNING:" must be all caps, so it gets an exact comparison — no fuzzy matching. Only whitespace is forgiven, because OCR of a wrapped paragraph introduces line breaks. Title-case lead-ins are flagged as violations, and the check pinpoints the first deviating word for reworded text.
+The government warning is the deliberate exception: the statutory text (27 CFR 16.21) must match word-for-word and "GOVERNMENT WARNING:" must be all caps, so it gets an exact comparison — no fuzzy matching. Title-case lead-ins are flagged as violations, and the check pinpoints the first deviating word for reworded text. Two narrow concessions to OCR reality, both surfaced honestly: whitespace is forgiven (reading a wrapped paragraph introduces line breaks), and a *punctuation-only* difference — wording and capitalization identical — becomes a ⚠️ "confirm punctuation visually" review item rather than a hard fail. End-to-end testing on the skewed test label showed OCR can drop a period on an angled photo; hard-failing a good label over that is exactly the false-rejection behavior that makes agents abandon a tool.
 
 ### Speed
 

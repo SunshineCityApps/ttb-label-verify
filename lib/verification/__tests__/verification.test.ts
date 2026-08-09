@@ -137,6 +137,21 @@ describe("compareGovernmentWarning", () => {
     expect(compareGovernmentWarning(wrapped).status).toBe("match");
   });
 
+  it("punctuation-only OCR differences go to review, not rejection", () => {
+    const missingPeriod = CANONICAL_WARNING.replace("birth defects.", "birth defects");
+    const r = compareGovernmentWarning(missingPeriod);
+    expect(r.status).toBe("match_with_note");
+    expect(r.note).toContain("punctuation");
+  });
+
+  it("a punctuation difference combined with a case violation still fails", () => {
+    const titleCaseNoPeriod = CANONICAL_WARNING.replace(
+      "GOVERNMENT WARNING:",
+      "Government Warning:",
+    ).replace("birth defects.", "birth defects");
+    expect(compareGovernmentWarning(titleCaseNoPeriod).status).toBe("mismatch");
+  });
+
   it("Jenny's case: 'Government Warning' in title case is a violation", () => {
     const titleCase = CANONICAL_WARNING.replace("GOVERNMENT WARNING:", "Government Warning:");
     const r = compareGovernmentWarning(titleCase);
