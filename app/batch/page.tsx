@@ -150,7 +150,8 @@ export default function BatchPage() {
   }
 
   const doneCount = rows.filter((r) => r.status === "done" || r.status === "error").length;
-  const ready = rows.length > 0 && rows.some((r) => r.file) && !running;
+  const matchedCount = rows.filter((r) => r.file).length;
+  const ready = rows.length > 0 && matchedCount > 0 && !running;
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 text-slate-900">
@@ -197,6 +198,13 @@ export default function BatchPage() {
       {csvError && (
         <div role="alert" className="mb-6 rounded-xl border-2 border-red-300 bg-red-50 p-4 text-lg text-red-800">
           {csvError}
+        </div>
+      )}
+      {rows.length > 0 && matchedCount < rows.length && (
+        <div className="mb-6 rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-amber-900">
+          {rows.length - matchedCount} of {rows.length} CSV rows have no matching uploaded image —
+          check that the filenames in the CSV match the image files you selected.
+          {matchedCount === 0 && " Upload the images to enable verification."}
         </div>
       )}
       {unmatchedImages.length > 0 && (
