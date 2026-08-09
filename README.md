@@ -27,7 +27,7 @@ Sample labels with known expected outcomes are in [`test-labels/`](test-labels/m
 
 The single most important architectural decision. Claude vision does exactly one job: transcribe what is printed on the label into structured JSON (enforced by the API's structured-outputs feature, so there is no fragile JSON parsing). Every pass/fail decision is then made by plain TypeScript in [`lib/verification/`](lib/verification/) — normalized string comparison, numeric ABV parsing, unit-aware volume comparison, and an exact statutory-text check.
 
-Why: in a compliance setting, "the model felt like it matched" is not an explainable answer. Deterministic verification code is unit-testable (37 tests cover it), auditable, and gives identical results for identical inputs. It also means a bad OCR read is visible — the extracted text is shown beside every result so the agent can eyeball-confirm.
+Why: in a compliance setting, "the model felt like it matched" is not an explainable answer. Deterministic verification code is unit-testable (45 tests cover it), auditable, and gives identical results for identical inputs. It also means a bad OCR read is visible — the extracted text is shown beside every result so the agent can eyeball-confirm.
 
 ### Three-state matching
 
@@ -70,7 +70,7 @@ Because half the review team is over 50, color is never the sole signal: every p
 
 ## Assumptions and trade-offs
 
-- **Distilled-spirits field set.** The prototype verifies the five fields in the sample (brand, class/type, ABV, net contents, warning). Wine/beer variations (e.g. ABV exceptions) and name/address-of-bottler are out of scope but slot into the same field-comparison framework.
+- **Distilled-spirits field set.** The prototype verifies the five fields in the sample (brand, class/type, ABV, net contents, warning). The remaining TTB elements — name/address of bottler, country of origin for imports, and wine/beer variations (e.g. ABV exceptions) — are out of scope for the prototype but slot into the same extract-then-compare framework as additional field comparators.
 - **Warning bold/size is not machine-checked.** Regulation also requires bold type of minimum size; that isn't reliably judgeable from an arbitrary photo, so the tool flags it for visual confirmation instead of pretending to verify it.
 - **Proof must equal 2× ABV.** When the label states proof, an internally inconsistent value is flagged as a defect even if the ABV itself matches.
 - **Metric and US volumes are never converted across systems.** "25.4 FL OZ" vs "750 mL" is flagged for manual verification rather than trusting a rounding-sensitive conversion in a compliance tool.
