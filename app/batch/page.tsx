@@ -19,6 +19,8 @@ interface BatchRow {
   status: "waiting" | "checking" | "done" | "error";
   response?: VerifyResponse;
   error?: string;
+  /** Seconds for this label's round trip — the <5s requirement, visible per row. */
+  elapsed?: number;
 }
 
 export default function BatchPage() {
@@ -103,6 +105,7 @@ export default function BatchPage() {
         setRows((current) =>
           current.map((row, i) => (i === index ? { ...row, status: "checking" } : row)),
         );
+        const started = performance.now();
         try {
           const row = rows[index];
           const form = new FormData();
@@ -122,11 +125,12 @@ export default function BatchPage() {
               : res.status === 413
                 ? "Image too large to upload (limit 4 MB)."
                 : "Verification failed. Please try again.";
+          const elapsed = (performance.now() - started) / 1000;
           setRows((current) =>
             current.map((r, i) =>
               i === index
                 ? res.ok && body
-                  ? { ...r, status: "done", response: body as VerifyResponse }
+                  ? { ...r, status: "done", response: body as VerifyResponse, elapsed }
                   : { ...r, status: "error", error: message }
                 : r,
             ),
@@ -243,11 +247,16 @@ export default function BatchPage() {
                       <span className="font-semibold text-red-700">{row.error}</span>
                     )}
                     {row.status === "done" && verdict && (
-                      <span
-                        className={`inline-block rounded-full px-4 py-1 font-bold text-white ${verdict.style}`}
-                      >
-                        {verdict.short}
-                      </span>
+                      <>
+                        {row.elapsed !== undefined && (
+                          <span className="mr-2 text-slate-500">{row.elapsed.toFixed(1)}s</span>
+                        )}
+                        <span
+                          className={`inline-block rounded-full px-4 py-1 font-bold text-white ${verdict.style}`}
+                        >
+                          {verdict.short}
+                        </span>
+                      </>
                     )}
                     {row.response && (
                       <span className="ml-2 text-slate-500">{expanded === index ? "▲" : "▼"}</span>
