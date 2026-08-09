@@ -107,7 +107,12 @@ export default function Home() {
           tabIndex={0}
           aria-label="Upload a label image"
           onClick={() => fileInput.current?.click()}
-          onKeyDown={(e) => e.key === "Enter" && fileInput.current?.click()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fileInput.current?.click();
+            }
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -118,7 +123,7 @@ export default function Home() {
             setDragOver(false);
             chooseFile(e.dataTransfer.files?.[0]);
           }}
-          className={`flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border-4 border-dashed p-6 text-center transition-colors ${
+          className={`flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border-4 border-dashed p-6 text-center transition-colors focus-visible:outline-4 focus-visible:outline-blue-600 ${
             dragOver ? "border-blue-600 bg-blue-50" : "border-slate-300 bg-white hover:border-blue-400"
           }`}
         >

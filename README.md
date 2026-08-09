@@ -60,6 +60,8 @@ Every feature maps to a stakeholder ask from the discovery notes:
 | No sensitive data storage | Marcus | Fully stateless, nothing persisted |
 | Bold/type-size rules can't be checked from an image | Jenny (implied by the warning rules) | Documented limitation — every warning result carries a "confirm visually" note |
 
+Because half the review team is over 50, color is never the sole signal: every pass/needs-review/fail state pairs its green/amber/red with a plain-text label ("Match", "Needs your review", "Mismatch"), the base font stays at 16px+ with results at 18px, and the whole upload → verify flow is keyboard-navigable.
+
 ## Assumptions and trade-offs
 
 - **Distilled-spirits field set.** The prototype verifies the five fields in the sample (brand, class/type, ABV, net contents, warning). Wine/beer variations (e.g. ABV exceptions) and name/address-of-bottler are out of scope but slot into the same field-comparison framework.
