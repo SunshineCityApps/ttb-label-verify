@@ -112,13 +112,22 @@ export default function BatchPage() {
           form.append("alcoholContent", row.application.alcoholContent);
           form.append("netContents", row.application.netContents);
           const res = await fetch("/api/verify", { method: "POST", body: form });
-          const body = await res.json();
+          let body: unknown = null;
+          try {
+            body = await res.json();
+          } catch {}
+          const message =
+            body && typeof body === "object" && typeof (body as { error?: unknown }).error === "string"
+              ? ((body as { error: string }).error)
+              : res.status === 413
+                ? "Image too large to upload (limit 4 MB)."
+                : "Verification failed. Please try again.";
           setRows((current) =>
             current.map((r, i) =>
               i === index
-                ? res.ok
+                ? res.ok && body
                   ? { ...r, status: "done", response: body as VerifyResponse }
-                  : { ...r, status: "error", error: body.error ?? "Verification failed." }
+                  : { ...r, status: "error", error: message }
                 : r,
             ),
           );

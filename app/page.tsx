@@ -25,6 +25,12 @@ export default function Home() {
 
   function chooseFile(f: File | undefined) {
     if (!f) return;
+    if (f.size > 4 * 1024 * 1024) {
+      setError(
+        "That image is larger than 4 MB, which is more than the service can accept. Please resize or re-export it smaller and try again.",
+      );
+      return;
+    }
     setFile(f);
     setResponse(null);
     setError(null);
@@ -48,9 +54,23 @@ export default function Home() {
       form.append("image", file);
       Object.entries(fields).forEach(([key, value]) => form.append(key, value));
       const res = await fetch("/api/verify", { method: "POST", body: form });
-      const body = await res.json();
+      // A platform-level rejection (e.g. payload too large) returns plain text,
+      // not our JSON shape — never let that surface as a raw parse failure.
+      let body: unknown = null;
+      try {
+        body = await res.json();
+      } catch {}
+      const message =
+        body && typeof body === "object" && typeof (body as { error?: unknown }).error === "string"
+          ? ((body as { error: string }).error)
+          : null;
       if (!res.ok) {
-        setError(body.error ?? "Something went wrong. Please try again.");
+        setError(
+          message ??
+            (res.status === 413
+              ? "That image is too large to upload (limit 4 MB). Please resize it and try again."
+              : "The server couldn't process this request. Please try again."),
+        );
         return;
       }
       setResponse(body as VerifyResponse);

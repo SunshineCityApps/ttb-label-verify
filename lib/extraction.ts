@@ -14,6 +14,11 @@ const client = new Anthropic();
 
 /** What Claude vision reads off the label. Structured output guarantees this shape. */
 const ExtractionSchema = z.object({
+  is_label: z
+    .boolean()
+    .describe(
+      "false if the image is not an alcohol beverage label at all (e.g. a photo of something else, a blank image, an unrelated document)",
+    ),
   readable: z
     .boolean()
     .describe(
@@ -44,7 +49,7 @@ const ExtractionSchema = z.object({
 
 export type ExtractionResult =
   | { ok: true; label: ExtractedLabel }
-  | { ok: false; error: "unreadable" | "api_error"; message: string };
+  | { ok: false; error: "not_label" | "unreadable" | "api_error"; message: string };
 
 const SYSTEM_PROMPT = `You are a precise OCR system for alcohol beverage labels. Transcribe text exactly as printed on the label — exact capitalization, exact punctuation, exact wording. Never correct, normalize, or complete text; a compliance check depends on faithful transcription. If a field is not visible on the label, return null for it.`;
 
@@ -83,6 +88,15 @@ export async function extractLabel(
         ok: false,
         error: "api_error",
         message: "The AI response could not be parsed. Please try again.",
+      };
+    }
+
+    if (!parsed.is_label) {
+      return {
+        ok: false,
+        error: "not_label",
+        message:
+          "This image doesn't appear to be an alcohol beverage label. Please upload a photo of the label itself.",
       };
     }
 

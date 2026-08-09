@@ -1,14 +1,14 @@
 import { extractLabel } from "@/lib/extraction";
+import { sniffImageType } from "@/lib/image-sniff";
 import { verifyLabel } from "@/lib/verification";
 import type { ApplicationData } from "@/lib/verification";
 
-const ACCEPTED_TYPES = {
-  "image/jpeg": "image/jpeg",
-  "image/png": "image/png",
-  "image/webp": "image/webp",
-} as const;
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+/** Vercel rejects request bodies over ~4.5 MB at the platform layer, so the
+ * effective ceiling is enforced client-side at 4 MB; this server check keeps
+ * local/dev behavior consistent with production. */
+const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
 /**
  * POST /api/verify — multipart form: `image` file + the four application fields.
@@ -31,8 +31,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Please attach a label image." }, { status: 400 });
   }
 
-  const mediaType = ACCEPTED_TYPES[image.type as keyof typeof ACCEPTED_TYPES];
-  if (!mediaType) {
+  if (!ACCEPTED_TYPES.includes(image.type)) {
     return Response.json(
       { error: "Unsupported image type. Please upload a JPG, PNG, or WebP image." },
       { status: 400 },
@@ -40,7 +39,22 @@ export async function POST(request: Request) {
   }
   if (image.size > MAX_IMAGE_BYTES) {
     return Response.json(
-      { error: "Image is too large (over 8 MB). Please upload a smaller image." },
+      { error: "Image is too large (over 4 MB). Please resize it and try again." },
+      { status: 400 },
+    );
+  }
+
+  const imageBytes = new Uint8Array(await image.arrayBuffer());
+
+  // The declared MIME type comes from the filename; the bytes are authoritative.
+  // Catches renamed/corrupted files before they reach the AI as a confusing error.
+  const mediaType = sniffImageType(imageBytes);
+  if (!mediaType) {
+    return Response.json(
+      {
+        error:
+          "This file doesn't appear to be a valid image — it may be renamed or corrupted. Please upload an actual JPG, PNG, or WebP image.",
+      },
       { status: 400 },
     );
   }
@@ -62,11 +76,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const imageBase64 = Buffer.from(await image.arrayBuffer()).toString("base64");
+  const imageBase64 = Buffer.from(imageBytes).toString("base64");
 
   const extraction = await extractLabel(imageBase64, mediaType);
   if (!extraction.ok) {
-    const status = extraction.error === "unreadable" ? 422 : 502;
+    const status = extraction.error === "api_error" ? 502 : 422;
     return Response.json(
       { error: extraction.message, errorType: extraction.error },
       { status },

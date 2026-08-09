@@ -9,5 +9,5 @@ export interface VerifyResponse {
 /** Error payload from POST /api/verify. */
 export interface VerifyError {
   error: string;
-  errorType?: "unreadable" | "api_error";
+  errorType?: "not_label" | "unreadable" | "api_error";
 }
