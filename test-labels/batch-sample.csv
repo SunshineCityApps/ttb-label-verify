@@ -1,0 +1,7 @@
+filename,brand_name,class_type,alcohol_content,net_contents
+01-clean-pass.png,OLD TOM DISTILLERY,Kentucky Straight Bourbon Whiskey,45%,750 mL
+02-brand-case.png,Stone's Throw,Straight Rye Whiskey,50%,750 mL
+03-warning-titlecase.png,OLD TOM DISTILLERY,Kentucky Straight Bourbon Whiskey,45%,750 mL
+04-abv-mismatch.png,OLD TOM DISTILLERY,Kentucky Straight Bourbon Whiskey,45%,750 mL
+05-missing-net-contents.png,OLD TOM DISTILLERY,Kentucky Straight Bourbon Whiskey,45%,750 mL
+06-skewed.png,OLD TOM DISTILLERY,Kentucky Straight Bourbon Whiskey,45%,750 mL
