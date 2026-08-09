@@ -69,6 +69,22 @@ Every feature maps to a stakeholder ask from the discovery notes:
 - **Batch runs client-side.** Simple and serverless-friendly; the tab must stay open. A production version processing 300-label dumps unattended would move the queue server-side with a job store.
 - **Test labels are rendered, not photographed.** `test-labels/generate.py` draws them deterministically so expected results are exact; the skewed variant stands in for imperfect photography. Real-world bottle photos (glare, curvature) would be the next test tier.
 
+## Adversarial testing
+
+The live deployment was attacked with hostile inputs; every failure is a human-readable message — no stack traces, raw 500s, or hung spinners. Two of these started life as ugly failures and were fixed as a result of this pass (commit history has the details):
+
+| Attack | Result |
+|---|---|
+| Photo that isn't a label (landscape) | 422 — "This image doesn't appear to be an alcohol beverage label." (extraction reports `is_label: false`; previously misreported as "too unclear") |
+| PDF renamed to `.jpg` | 400 — "doesn't appear to be a valid image — it may be renamed or corrupted." Magic-byte sniffing catches it server-side; previously surfaced as a misleading "AI service error" 502 |
+| 29 MB image | Blocked client-side at 4 MB with a resize suggestion before any upload starts. (Vercel rejects >4.5 MB bodies at the platform layer with a plain-text 413, which the UI previously misreported as a connection error — the API path now also maps 413 to a size message) |
+| Unsupported type (GIF, `.txt`) | 400 — "Unsupported image type. Please upload a JPG, PNG, or WebP image." |
+| Empty / missing upload | 400 — "Please attach a label image." (the UI blocks the request before it's even sent) |
+| Batch CSV naming a file with no matching image | That row reports "No uploaded image matches this filename."; other rows proceed normally |
+| Malformed batch CSV (wrong/missing columns) | Rejected on load with the list of missing columns and the expected header |
+
+Blur/unreadable images remain a distinct case: extraction refuses to guess and the agent is told to request a better image (Jenny's requirement).
+
 ## Production notes
 
 This prototype calls the public Anthropic API. The agency network blocks outbound traffic to most ML endpoints (it broke the previous vendor's pilot), so a production deployment would use FedRAMP-authorized model hosting — e.g. Claude via AWS GovCloud/Bedrock — plus the usual records-retention and PII review before anything touches real applicant data. The "AI extracts, code verifies" split helps there too: the deterministic verification layer is host-agnostic, so swapping the model endpoint changes nothing about how decisions are made.
