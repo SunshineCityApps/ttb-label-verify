@@ -2,7 +2,7 @@
 
 AI-assisted verification of alcohol beverage labels against COLA application data. An agent uploads a label image plus the application's stated fields; Claude vision reads the label, and deterministic code verifies every field — per-field results in seconds, with an overall pass / needs-review / fail verdict.
 
-**Live demo:** _deployment URL here_
+**Live demo:** https://ttb-label-verify-pink.vercel.app
 
 ## Running locally
 
