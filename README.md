@@ -6,6 +6,8 @@ AI-assisted verification of alcohol beverage labels against COLA application dat
 
 **Live demo:** https://ttb-label-verify-pink.vercel.app
 
+> **Notable design decision** — end-to-end testing caught OCR dropping a period from the government warning on an angled photo, which the word-for-word check turned into a false rejection of a compliant label. The policy shipped in [`52feced`](https://github.com/SunshineCityApps/ttb-label-verify/commit/52feced): wording and capitalization stay strict (title-case lead-ins still fail), while punctuation-only differences become a ⚠️ needs-review item telling the agent to confirm punctuation visually. Full reasoning under [Approach](#approach) and [Assumptions and trade-offs](#assumptions-and-trade-offs).
+
 ## Running locally
 
 ```bash
