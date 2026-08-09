@@ -2,6 +2,8 @@
 
 [![tests](https://github.com/SunshineCityApps/ttb-label-verify/actions/workflows/test.yml/badge.svg)](https://github.com/SunshineCityApps/ttb-label-verify/actions/workflows/test.yml)
 
+![Batch verification results: six labels checked in about three seconds each, with pass, needs-review, and fail verdicts](docs/screenshots/batch-results.png)
+
 AI-assisted verification of alcohol beverage labels against COLA application data. An agent uploads a label image plus the application's stated fields; Claude vision reads the label, and deterministic code verifies every field — per-field results in seconds, with an overall pass / needs-review / fail verdict.
 
 **Live demo:** https://ttb-label-verify-pink.vercel.app
@@ -28,6 +30,8 @@ The single most important architectural decision. Claude vision does exactly one
 Why: in a compliance setting, "the model felt like it matched" is not an explainable answer. Deterministic verification code is unit-testable (37 tests cover it), auditable, and gives identical results for identical inputs. It also means a bad OCR read is visible — the extracted text is shown beside every result so the agent can eyeball-confirm.
 
 ### Three-state matching
+
+![Single-label result: needs-review verdict with a per-field breakdown, including the STONE'S THROW capitalization note](docs/screenshots/single-result.png)
 
 Each field resolves to **match**, **match with note**, or **mismatch** — not a binary. A label shouting `STONE'S THROW` against an application reading `Stone's Throw` is the same content with different formatting; the tool says so and lets the agent make the call instead of auto-rejecting. Content differences (wrong ABV, missing field) are hard mismatches.
 
